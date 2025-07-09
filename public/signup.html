@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - AyurVeda AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .signup-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .signup-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        }
+        
+        .signup-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .password-toggle {
+            position: relative;
+        }
+        
+        .password-toggle button {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+        }
+        
+        .signup-footer {
+            text-align: center;
+            margin-top: 24px;
+        }
+        
+        .signup-footer a {
+            color: #059669;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .signup-footer a:hover {
+            color: #047857;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="signup-card animate-scale-in">
+            <div class="signup-header">
+                <div class="logo" style="justify-content: center; margin-bottom: 24px;">
+                    <div class="logo-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>AyurVeda AI</h1>
+                    </div>
+                </div>
+                <h2 style="color: #1f2937; margin-bottom: 8px;">Create Account</h2>
+                <p style="color: #6b7280;">Join us to start your wellness journey</p>
+            </div>
+            
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-toggle">
+                        <input type="password" id="password" name="password" required placeholder="Enter your password" minlength="6">
+                        <button type="button" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="passwordIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 16px;">
+                    <span id="signupText">Create Account</span>
+                    <div id="signupSpinner" class="loading-spinner" style="display: none;"></div>
+                </button>
+            </form>
+            
+            <div class="signup-footer">
+                <p style="color: #6b7280; margin-bottom: 16px;">
+                    Already have an account? <a href="login.html">Sign in</a>
+                </p>
+                <a href="index.html" style="color: #059669; font-size: 14px;">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.className = 'fas fa-eye';
+            }
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const signupText = document.getElementById('signupText');
+            const signupSpinner = document.getElementById('signupSpinner');
+            
+            signupText.style.display = 'none';
+            signupSpinner.style.display = 'inline-block';
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = 'quiz.html';
+                } else {
+                    alert(data.error || 'Registration failed');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                alert('Registration failed. Please try again.');
+            } finally {
+                signupText.style.display = 'inline';
+                signupSpinner.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
